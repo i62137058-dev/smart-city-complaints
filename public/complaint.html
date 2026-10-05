@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Submit Complaint</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Smart City</div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="status.html">My Complaints</a>
+    </nav>
+</header>
+
+<main>
+
+    <div class="form-container">
+
+        <h1>Submit Complaint</h1>
+
+        <form id="complaintForm">
+
+            <label>Complaint Category</label>
+
+            <select id="category" required>
+                <option value="">Select Category</option>
+                <option value="Road">Road</option>
+                <option value="Street Light">Street Light</option>
+                <option value="Garbage">Garbage</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Drainage">Drainage</option>
+                <option value="Other">Other</option>
+            </select>
+
+
+            <label>Location</label>
+
+            <input
+                type="text"
+                id="location"
+                placeholder="Enter complaint location"
+                required
+            >
+
+
+            <label>Complaint Description</label>
+
+            <textarea
+                id="description"
+                placeholder="Describe your complaint"
+                rows="5"
+                required
+            ></textarea>
+
+
+            <label>Upload Photo</label>
+
+            <input
+                type="file"
+                id="photo"
+                accept="image/*"
+            >
+
+
+            <button type="submit">
+                Submit Complaint
+            </button>
+
+        </form>
+
+    </div>
+
+</main>
+
+
+<script>
+
+document.getElementById("complaintForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const category = document.getElementById("category").value;
+    const location = document.getElementById("location").value;
+    const description = document.getElementById("description").value;
+    const photo = document.getElementById("photo").files[0];
+
+
+    const formData = new FormData();
+
+    formData.append("user_id", userId);
+    formData.append("category", category);
+    formData.append("location", location);
+    formData.append("description", description);
+
+    if (photo) {
+        formData.append("photo", photo);
+    }
+
+
+    try {
+
+        const response = await fetch("/api/complaints", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+if (response.ok) {
+    window.location.href = "status.html";
+} else {
+    alert(data.message);
+}
+
+    } catch (error) {
+
+        alert("Unable to connect to server.");
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

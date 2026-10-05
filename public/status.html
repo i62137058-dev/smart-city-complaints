@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Complaints</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Smart City</div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="complaint.html">New Complaint</a>
+        <a href="login.html">Logout</a>
+    </nav>
+</header>
+
+
+<main>
+
+    <section class="services">
+
+        <h1>My Complaints</h1>
+
+        <div id="complaintList">
+            <p>Loading complaints...</p>
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+async function loadComplaints() {
+
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `/api/complaints/user/${userId}`
+        );
+
+        const complaints = await response.json();
+
+        const list = document.getElementById("complaintList");
+
+        if (complaints.length === 0) {
+
+            list.innerHTML = `
+                <div class="service-card">
+                    <h3>No Complaints Found</h3>
+                    <p>You have not submitted any complaints yet.</p>
+                </div>
+            `;
+
+            return;
+        }
+
+        list.innerHTML = "";
+
+complaints.forEach(function(complaint) {
+
+    const card = document.createElement("div");
+    card.className = "service-card complaint-card";
+
+    card.innerHTML = `
+        <h3>Complaint #${complaint.id}</h3>
+
+        <p><strong>Category:</strong> ${complaint.category}</p>
+
+        <p><strong>Location:</strong> ${complaint.location}</p>
+
+        <p><strong>Description:</strong> ${complaint.description}</p>
+
+        <p><strong>Status:</strong>
+            <span class="status">${complaint.status}</span>
+        </p>
+
+        ${complaint.photo ? `
+            <p><strong>Photo:</strong></p>
+            <img src="/uploads/${complaint.photo}"
+                 style="width:200px; max-width:100%; border-radius:10px;">
+        ` : ""}
+
+        <p><strong>Date:</strong>
+            ${new Date(complaint.created_at).toLocaleString()}
+        </p>
+    `;
+
+    list.appendChild(card);
+});
+
+    } catch (error) {
+
+        document.getElementById("complaintList").innerHTML =
+            "<p>Unable to load complaints.</p>";
+
+    }
+}
+
+loadComplaints();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Smart City - Admin</div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Logout</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="services">
+
+        <h1>Admin Dashboard</h1>
+
+        <div id="complaintList">
+            <p>Loading complaints...</p>
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+async function loadComplaints() {
+
+    try {
+
+        const response = await fetch("/api/complaints/all");
+
+        const complaints = await response.json();
+
+        const list = document.getElementById("complaintList");
+
+        if (complaints.length === 0) {
+
+            list.innerHTML = `
+                <div class="service-card">
+                    <h3>No Complaints Found</h3>
+                </div>
+            `;
+
+            return;
+        }
+
+        list.innerHTML = "";
+
+        complaints.forEach(function(complaint) {
+
+            const card = document.createElement("div");
+
+            card.className = "service-card complaint-card";
+
+            card.innerHTML = `
+            <p><strong>Photo:</strong></p>
+            ${complaint.photo ? `
+<img src="/uploads/${complaint.photo}" style="width:200px; max-width:100%;">
+` : ""}
+
+                <h3>Complaint #${complaint.id}</h3>
+
+                <p>
+                    <strong>Category:</strong>
+                    ${complaint.category}
+                </p>
+
+                <p>
+                    <strong>Location:</strong>
+                    ${complaint.location}
+                </p>
+
+                <p>
+                    <strong>Description:</strong>
+                    ${complaint.description}
+                </p>
+
+                <p>
+                    <strong>Current Status:</strong>
+                    ${complaint.status}
+                </p>
+
+                <label>
+                    Update Status:
+                </label>
+
+                <select id="status-${complaint.id}">
+
+                    <option value="Pending">Pending</option>
+
+                    <option value="Assigned">Assigned</option>
+
+                    <option value="In Progress">In Progress</option>
+
+                    <option value="Resolved">Resolved</option>
+
+                </select>
+
+                <button onclick="updateStatus(${complaint.id})">
+                    Update Status
+                </button>
+
+            `;
+
+            list.appendChild(card);
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        document.getElementById("complaintList").innerHTML =
+            "<p>Unable to load complaints.</p>";
+
+    }
+
+}
+
+
+async function updateStatus(complaintId) {
+
+    const status =
+        document.getElementById("status-" + complaintId).value;
+
+    try {
+
+        const response = await fetch(
+            "/api/complaints/" + complaintId+"/status",
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    status: status
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        alert(result.message);
+
+        loadComplaints();
+
+    } catch (error) {
+
+        console.log(error);
+
+        alert("Unable to update status.");
+
+    }
+
+}
+
+
+loadComplaints();
+
+</script>
+
+</body>
+
+</html>
