@@ -22,9 +22,9 @@ router.post("/register", async (req, res) => {
             async (err, results) => {
 
                 if (err) {
-                    console.log("REGISTER SELECT ERROR:",err);
+                    console.log("REGISTER INSERT ERROR:",err);
                     return res.status(500).json({
-                        message: "Database error"
+                        message: "Registration failed"
                     });
                 }
 
