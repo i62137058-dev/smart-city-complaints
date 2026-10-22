@@ -78,13 +78,16 @@
 </html>
 <script>
 document.getElementById("registerForm").addEventListener("submit", async function(event) {
-
     event.preventDefault();
 
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
     const password = document.getElementById("password").value;
+
+    const button = document.querySelector("#registerForm button");
+    button.disabled = true;
+    button.textContent = "Registering...";
 
     try {
         const response = await fetch("/api/auth/register", {
@@ -102,14 +105,18 @@ document.getElementById("registerForm").addEventListener("submit", async functio
 
         const data = await response.json();
 
-        alert(data.message);
-
         if (response.ok) {
-            window.location.href = "login.html";
+            window.location.replace("login.html");
+        } else {
+            alert(data.message || "Registration failed");
+            button.disabled = false;
+            button.textContent = "Register";
         }
 
     } catch (error) {
         alert("Unable to connect to server");
+        button.disabled = false;
+        button.textContent = "Register";
     }
 });
 </script>
